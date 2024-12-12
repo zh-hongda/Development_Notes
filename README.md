@@ -613,7 +613,7 @@ Host jetson-xavier-nx-fire
 
 生成密钥`ssh-keygen -t rsa -C "hongdaaaaaaaa@163.com`
 
-2.配置本地git环境
+2. 配置本地git环境
 
 ➢ 安装git, 并执行：
 
@@ -627,7 +627,7 @@ git config --global user.name "hongda" git config --global user.email "hongdaaaa
 git config --global user.name "hongda" git config --global user.email "hongdaaaaaaaa@163.com"
 ```
 
-3.拉取远程仓库到本地
+3. 拉取远程仓库到本地
 
 ```bash
 git pull 
