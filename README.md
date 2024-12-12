@@ -609,9 +609,7 @@ Host jetson-xavier-nx-fire
 
 ## 在VsCode中推送代码到github
 
-1. 建立远程仓库, 并将当前设备的SSH keys 添加到github中, 
-
-生成密钥`ssh-keygen -t rsa -C "hongdaaaaaaaa@163.com`
+1. 建立远程仓库, 并将当前设备的SSH keys 添加到github中, 生成密钥`ssh-keygen -t rsa -C "hongdaaaaaaaa@163.com`，github网页版中添加密钥
 
 2. 配置本地git环境
 
@@ -633,21 +631,24 @@ git config --global user.name "hongda" git config --global user.email "hongdaaaa
 git pull 
 ```
 
-➢ 打开VSCode, 并在其中打开刚才拉取的项目文件夹
+- 打开VSCode, 并在其中打开刚才拉取的项目文件夹
 
-➢ 编辑（修改/保存）文件。
+- 编辑（修改/保存）文件
+- 在VScode中点击按钮"stage all changes", “commit all”
 
-➢ 在VScode中点击按钮"stage all changes", “commit all”。
+```bash
+git commit -a -m "message"
+```
 
-4. 将本地仓库的内容推送到远程仓库
 
-在VSCode的终端中输入：
+
+4. 将本地仓库的内容推送到远程仓库，在VSCode的终端中输入:
 
 ```
-#添加远程仓库地
+# 添加远程仓库地
 git remote add origin git@github.com: zh-hongda/仓库名.git 
-#将本地仓库推送至远程仓库, 
-git push 远程仓库名 本地仓库分支名:远程仓库分支名 git push origin master:远程仓库分支名
+# 将本地仓库推送至远程仓库, git push 远程仓库名 本地仓库分支名:远程仓库分支名
+git push origin master:远程仓库分支名
 ```
 
 5. 忽略指定文件, 需要在提交前写好.gitignore
@@ -677,8 +678,6 @@ apt-get install nvidia-driver-450-server
 # 查看驱动是否安装成功
 nvidia-smi
 ```
-
-
 
 
 
