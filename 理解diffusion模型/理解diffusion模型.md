@@ -46,30 +46,27 @@
 从数学上来看，我们可以将观测到的数据和隐变量建模为联合分布 $p(x, z)$。回忆生成模型的一种方法，称为“基于似然”（likelihood-based），其目标是学习一个模型以最大化所有观察数据 $x$ 的似然 $p(x)$。
 
 我们可以通过两种方式操作这个联合分布来恢复观测数据的似然 $p(x)$。我们可以显式地对潜在变量 $z$ 进行边缘化处理：
-
 $$
 p(x) = \int p(x, z) dz
+\tag{1}
 $$
-
 或者，我们可以使用概率的链式法则
-
 $$
 p(x) = \frac{p(x, z)}{p(z|x)}
-\tag{2} \label{eq2}
+\tag{2}
 $$
-
-直接计算并最大化似然 $p(x)$ 是困难的，因为需要对公式 (1) 中对所有潜在变量 $z$ 进行积分，对于复杂模型（往往对应高维空间）来说是不可行的，或者需要知道公式 $\eqref{eq2}$ 中的隐变量编码器 $p(z|x)$。然而，通过使用这两个公式，我们可以推导出一个术语，称为 **证据下界（Evidence Lower Bound, ELBO）**，顾名思义，它是证据的一个下界。
+直接计算并最大化似然 $p(x)$ 是困难的，因为需要对公式 (1) 中对所有潜在变量 $z$ 进行积分，对于复杂模型（往往对应高维空间）来说是不可行的，或者需要知道公式 公式. 中的隐变量编码器 $p(z|x)$。然而，通过使用这两个公式，我们可以推导出一个术语，称为 **证据下界（Evidence Lower Bound, ELBO）**，顾名思义，它是证据的一个下界。
 
 在这种情况下，证据被量化为观察数据的对数似然。然后，最大化 ELBO 成为优化隐变量模型的代理目标；在最优情况下，当 ELBO 被强大地参数化并完美优化时，它与证据完全等价。ELBO 的公式为：
 
 $$
 \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right]
-\tag{3} \label{eq3}
+\tag{3}
 $$
 为了使与证据的关系更加明确，我们可以用数学表达如下：
 $$
 \log p(x) \geq \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right] 
-\tag{4} \label{eq4}
+\tag{4}
 $$
 这里，$q_\phi(z|x)$ 是一个灵活的近似变分分布，带有需要优化的参数 $\phi$，它可以被看作是一个参数化的模型，用于估计给定观测值 $x$ 的真实分布；换句话说，它试图逼近真实后验分布 $p(z|x)$。如我们将在探索变分自编码器时看到的，通过调整参数 $\phi$ 来最大化 ELBO（证据下界），我们可以获得一些组件，这些组件可以用于建模真实数据分布并从中采样，从而学习一个生成模型。目前，让我们深入探讨为什么 ELBO 是我们希望最大化的目标。
 
@@ -102,7 +99,7 @@ $$
 > 其中： $ q(z) $ 是近似分布（通常是我们构造的分布，用来近似真实分布）。 $ p(z) $ 是真实分布（目标分布）。 $ \mathbb{E}_{q(z)} $ 表示对 $ q(z) $ 的期望。
 
 
-我们从公式$\eqref{eq1}$开始推导 ELBO：
+我们从公式(1)开始推导 ELBO：
 
 $$
 \begin{align*}
@@ -111,13 +108,11 @@ $$
 &= \log \mathbb{E}_{q_\phi(z \mid x)} \left[ \frac{p(x, z)}{q_\phi(z \mid x)} \right] \\
 &\geq \mathbb{E}_{q_\phi(z \mid x)} \left[ \log \frac{p(x, z)}{q_\phi(z \mid x)} \right] \quad \text{(应用 Jensen 不等式)}
 \end{align*}
-\tag{5} \label{eq5}
+\tag{5}
 $$
-
 在这个推导过程中，通过应用 Jensen 不等式，我们直接得到了下界。然而，这并没有提供太多关于底层发生的实际情况的有用信息；至关重要的是，这种证明并没有直观地解释为什么 ELBO 实际上是证据的下界，因为 Jensen 不等式只是简单地给出了结果。此外，仅仅知道 ELBO 是证据的下界并不能真正告诉我们为什么我们希望将其最大化作为目标。
 
-为了更好地理解证据与 ELBO 之间的关系，让我们使用公式$\eqref{eq2}$ 进行另一个推导。
-
+为了更好地理解证据与 ELBO 之间的关系，让我们使用公式(2)进行另一个推导。
 $$
 \begin{align}
 \log p(x) &= \log p(x) \int q_\phi(z|x) dz \\
@@ -126,19 +121,19 @@ $$
 &= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{p(z|x)} \right] \\
 &= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z) q_\phi(z|x)}{p(z|x) q_\phi(z|x)} \right] \\
 &= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right] + \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{q_\phi(z|x)}{p(z|x)} \right] \\
-&= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right] + D_{KL}(q_\phi(z|x) \| p(z|x)) \tag{6.1} \label{eq6.1}\\
+&= \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right] + D_{KL}(q_\phi(z|x) \| p(z|x)) \tag{6.1} \\\
 &\geq \mathbb{E}_{q_\phi(z|x)} \left[ \log \frac{p(x, z)}{q_\phi(z|x)} \right] 
 \end{align}
-\tag{6} \label{eq6}
+\tag{6}
 $$
 
-通过以上推导，我们可以观察到证据$log(p(x))$等于ELBO加上近似后验$q_\phi(z|x)$ 和真实后验$p(z|x)$之间的KL散度。KL散度项通过Jensen不等式在公式$\eqref{eq5}$中被移除。
+通过以上推导，我们可以观察到证据$log(p(x))$等于ELBO加上近似后验$q_\phi(z|x)$ 和真实后验$p(z|x)$之间的KL散度。KL散度项通过Jensen不等式在公式(5)中被移除。
 
 理解这一项是理解ELBO与证据之间关系的关键，同时也是为什么优化ELBO是一个合理目标的原因。我们现在已经明白为什么证据下界（ELBO）确实是一个下界：证据与ELBO之间的差异是一个严格非负的KL散度项，因此ELBO的值永远不会超过证据的值。
 
 我们进一步探讨为何需要最大化ELBO。加入隐变量概念后，我们的目标是希望通过观测数据学习能够描述这些数据的潜在结构。换言之，我们旨在优化变分后验分布$q_{\phi}(z|x) $，使其尽可能匹配真实后验分布$p(z|x) $，这通过最小化两者的KL散度（理想情况下为零）来实现。
 
-不幸的是，我们无法直接最小化这个KL散度，因为我们无法获得真实分布$p(z|x)$的数据。然而，请注意，在公式$\eqref{eq6.1}$的左侧，证据项$\log p(x)$是通过对联合分布$p(x, z)$中的所有潜变量$z$进行边际化计算的，证据项与参数$\phi$无关，对于参数$\phi$来说证据项$\log p(x)$可以被看做一个常数。
+不幸的是，我们无法直接最小化这个KL散度，因为我们无法获得真实分布$p(z|x)$的数据。然而，请注意，在公式(6.1))的左侧，证据项$\log p(x)$是通过对联合分布$p(x, z)$中的所有潜变量$z$进行边际化计算的，证据项与参数$\phi$无关，对于参数$\phi$来说证据项$\log p(x)$可以被看做一个常数。
 
 由于 ELBO 和 KL散度项的总和是一个常数，任何关于$\phi$的 ELBO 项的最大化都会同时引发KL散度的最小化。因此，ELBO可以被视为学习真实潜在后验分布的代理；我们越是优化 ELBO，我们的近似后验分布就越接近真实后验分布。
 
@@ -154,12 +149,12 @@ $$
 & =\mathbb{E}_{q_\phi(\boldsymbol{z} \mid \boldsymbol{x})}\left[\log p_{\boldsymbol{\theta}}(\boldsymbol{x} \mid \boldsymbol{z})\right]+\mathbb{E}_{q_\phi(\boldsymbol{z} \mid \boldsymbol{x})}\left[\log \frac{p(\boldsymbol{z})}{q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x})}\right]\\
 & =\underbrace{\mathbb{E}_{q_\phi(\boldsymbol{z} \mid \boldsymbol{x})}\left[\log p_{\boldsymbol{\theta}}(\boldsymbol{x} \mid \boldsymbol{z})\right]}_{\text {重构项 }}-\underbrace{D_{\mathrm{KL}}\left(q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x}) \| p(\boldsymbol{z})\right)}_{\text {先验匹配项 }}
 \end{array}
-\tag{7} \label{eq7}
+\tag{7}
 $$
 
 在这种情况下，我们学习将输入转换为一个中间分布 $q_\phi(\boldsymbol{z} \mid \boldsymbol{x})$，也即隐变量的概率分布，这个模型可以被视为编码器；。同时，我们学习一个确定性函数 $p_{\boldsymbol{\theta}}(\boldsymbol{x} \mid \boldsymbol{z})$，将给定的隐向量 $\boldsymbol{z}$ 转换为观测值 $\boldsymbol{x}$，这个函数可以被看做解码器。
 
-公式 $\eqref{eq7}$ 中的两项分别具有直观的解释：
+公式(7))中的两项分别具有直观的解释：
 
 1. 第一项衡量了解码器从变分分布中进行重构的可能性；这确保了学习到的分布能够有效地建模潜变量，使得原始数据可以从中再生成。
 2. 第二项衡量了学习到的变分分布与潜变量的先验分布之间的相似程度。最小化该项可以促使编码器真正学习一个分布。最大化 ELBO 等价于最大化第一项并最小化第二项。
@@ -171,14 +166,14 @@ $$
 q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x}) & =\mathcal{N}\left(\boldsymbol{z} ; \boldsymbol{\mu}_{\boldsymbol{\phi}}(\boldsymbol{x}), \boldsymbol{\sigma}_\phi^2(\boldsymbol{x}) \mathbf{I}\right) \\
 p(\boldsymbol{z}) & =\mathcal{N}(\boldsymbol{z} ; \mathbf{0}, \mathbf{I})
 \end{aligned}
-\tag{8} \label{eq8}
+\tag{8} 
 $$
 
 在这种情况下，ELBO的KL散度项可以解析计算，而重构项可以通过蒙特卡洛估计进行近似。目标函数可以被重新写为：
 
 $$
 \underset{\boldsymbol{\phi}, \boldsymbol{\theta}}{\arg \max } \mathbb{E}_{q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x})}\left[\log p_{\boldsymbol{\theta}}(\boldsymbol{x} \mid \boldsymbol{z})\right]-D_{\mathrm{KL}}\left(q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x}) \| p(\boldsymbol{z})\right) \approx \underset{\boldsymbol{\phi}, \boldsymbol{\theta}}{\arg \max } \sum_{l=1}^L \log p_{\boldsymbol{\theta}}\left(\boldsymbol{x} \mid \boldsymbol{z}^{(l)}\right)-D_{\mathrm{KL}}\left(q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x}) \| p(\boldsymbol{z})\right)
-\tag{9} \label{eq9}
+\tag{9} 
 $$
 
 其中，隐变量 $\left\{\boldsymbol{z}^{(l)}\right\}_{l=1}^L$ 是从 $q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x})$ 中对数据集中的每个观测值 $\boldsymbol{x}$ 进行采样得到的。然而，在默认设置中会出现一个问题：我们的损失函数计算所依赖的每个 $\boldsymbol{z}^{(l)}$ 都是通过随机采样程序生成的，而随机采样过程通常是不可微的。幸运的是，当 $q_{\boldsymbol{\phi}}(\boldsymbol{z} \mid \boldsymbol{x})$ 被设计为某些分布（包括多元高斯分布）时，可以通过重参数化技巧解决这个问题。
@@ -187,7 +182,7 @@ $$
 
 $$
 x=\mu+\sigma \epsilon \quad \text { 其中 } \epsilon \sim \mathcal{N}(\epsilon ; 0, \mathrm{I})
-\tag{10} \label{eq10}
+\tag{10} 
 $$
 
 换句话说，任意高斯分布可以被解释为一个标准高斯分布（其中 $\epsilon$ 是一个样本），通过加法将其均值从零移动到目标均值 $\mu$，并通过目标方差 $\sigma^2$ 进行伸缩。因此，通过重参数化技巧，可以通过从标准高斯分布采样，将结果按目标标准差进行缩放，并通过目标均值进行平移，来实现从任意高斯分布采样。
@@ -196,7 +191,7 @@ $$
 
 $$
 z=\mu_\phi(\boldsymbol{x})+\sigma_\phi(\boldsymbol{x}) \odot \boldsymbol{\epsilon} \quad \text { 其中 } \boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{\epsilon} ; \mathbf{0}, \mathbf{I})
-\tag{11} \label{eq11}
+\tag{11} 
 $$
 
 其中 $\odot$ 表示逐元素乘法。在这种重参数化版本的 $\boldsymbol{z}$ 下，可以根据需要计算相对于 $\phi$ 的梯度，从而优化 $\mu_\phi$ 和 $\sigma_\phi$。因此，VAE通过重参数化技巧和蒙特卡洛估计来联合优化 $\phi$ 和 $\boldsymbol{\theta}$ 的ELBO。
@@ -217,13 +212,13 @@ $$
 \begin{aligned}
     p\left(\boldsymbol{x}, \boldsymbol{z}_{1: T}\right) & =p\left(\boldsymbol{z}_T\right) p_{\boldsymbol{\theta}}\left(\boldsymbol{x} \mid \boldsymbol{z}_1\right) \prod_{t=2}^T p_{\boldsymbol{\theta}}\left(\boldsymbol{z}_{t-1} \mid \boldsymbol{z}_t\right)
 \end{aligned}
-\tag{12} \label{eq12}
+\tag{12} 
 $$
 $$
 \begin{aligned}
     q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right) & =q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_1 \mid \boldsymbol{x}\right) \prod_{t=2}^T q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_t \mid \boldsymbol{z}_{t-1}\right)
 \end{aligned}
-\tag{13} \label{eq13}
+\tag{13} \
 $$
 
 然后，我们可以将证据下界（ELBO）轻松扩展为：
@@ -234,12 +229,12 @@ $$
 & =\log \mathbb{E}_{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\left[\frac{p\left(\boldsymbol{x}, \boldsymbol{z}_{1: T}\right)}{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\right] \\
 & \geq \mathbb{E}_{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\left[\log \frac{p\left(\boldsymbol{x}, \boldsymbol{z}_{1: T}\right)}{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\right]
 \end{aligned}
-\tag{14} \label{eq14}
+\tag{14} \
 $$
-接下来，我们可以将联合分布公式 $\eqref{eq12}$和后验分布公式 $\eqref{eq13}$代入公式 $\eqref{eq14}$，从而得到一种替代形式：
+接下来，我们可以将联合分布公式(12)和后验分布公式(13))代入公式 (14)，从而得到一种替代形式：
 $$
 \mathbb{E}_{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\left[\log \frac{p\left(\boldsymbol{x}, \boldsymbol{z}_{1: T}\right)}{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\right]=\mathbb{E}_{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_{1: T} \mid \boldsymbol{x}\right)}\left[\log \frac{p\left(\boldsymbol{z}_T\right) p_{\boldsymbol{\theta}}\left(\boldsymbol{x} \mid \boldsymbol{z}_1\right) \prod_{t=2}^T p_{\boldsymbol{\theta}}\left(\boldsymbol{z}_{t-1} \mid \boldsymbol{z}_t\right)}{q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_1 \mid \boldsymbol{x}\right) \prod_{t=2}^T q_{\boldsymbol{\phi}}\left(\boldsymbol{z}_t \mid \boldsymbol{z}_{t-1}\right)}\right]
-\tag{15} \label{eq15}
+\tag{15} \
 $$
 正如我们将在下文所展示的，当我们研究变分扩散模型时，该目标可以进一步分解为具有可解释性的组成部分。
 
