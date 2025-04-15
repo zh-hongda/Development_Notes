@@ -134,14 +134,19 @@
 
 # Linux常用命令
 
-科学上网
+## 科学上网
 
 ```bash
 # 下载clash-verge-rev
 https://github.com/clash-verge-rev/clash-verge-rev
 # 安装
 sudo apt-get install ./clash-verge_1.7.7_amd64.deb
+# 终端代理，仅在当前终端生效
+export http_proxy="http://your-proxy:port"
+export https_proxy="http://your-proxy:port"
 ```
+
+
 
 ## 防火墙
 
@@ -513,6 +518,22 @@ docker system df
 
 
 
+## Docker配置代理
+
+```bash
+# docker配置代理
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf <<EOF
+[Service]
+Environment="HTTP_PROXY=http://your-proxy:port"
+Environment="HTTPS_PROXY=http://your-proxy:port"
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+
+
 ## Docker & OpenCV
 
 ```bash
@@ -679,8 +700,6 @@ apt-get install nvidia-driver-450-server
 nvidia-smi
 ```
 
-
-
 ## 显卡常用命令
 
 ```bash
@@ -699,9 +718,13 @@ sudo fuser -v /dev/nvidia* |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sud
 sudo fuser -v /dev/nvidia2 |awk '{for(i=1;i<=NF;i++)print "kill -9 " $i;}' | sudo sh
 ```
 
+## Jetson环境配置
 
-
-
+```bash
+# 环境配置
+https://docs.nvidia.com/sdk-manager/install-with-sdkm-jetson/index.html
+https://blog.csdn.net/qq_44998513/article/details/133754589
+```
 
 
 
