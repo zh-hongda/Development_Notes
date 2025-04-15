@@ -676,6 +676,18 @@ git push origin master:远程仓库分支名
 
 
 
+## VsCode创建markdown目录
+
+```bash
+# 安装插件markdown all in one
+# 基于目前的标题建立目录，如果新建了一个新的标题，可以保存，保存之后目录就更新了
+ctrl+shift+p调出命令框输入命令 markdow
+```
+
+
+
+
+
 # Nvidia
 
 ## 安装显卡驱动
